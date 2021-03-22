@@ -1,0 +1,48 @@
+---
+ - hosts: dn
+   vars_prompt:
+           - name: MasterIP
+             prompt: "Enter Master IP address"
+             private: no
+   tasks:
+   - name: Copy Hadoop software into Namenode
+     copy:
+             src: "/root/hadoop-1.2.1-1.x86_64.rpm"
+             dest: "/root"
+   - name: Copy JDK software into Namenode
+     copy:
+             src: "/root/jdk-8u171-linux-x64.rpm"
+             dest: "/root"
+   - name: Installing Hadoop software into Namenode
+     shell:
+             cmd: "rpm -ivh hadoop-1.2.1-1.x86_64.rpm --force"
+   - name: Installing JDK software into Namenode
+     shell:
+             cmd: "rpm jdk-8u171-linux-x64.rpm --force"
+   - name: cCraetinf folder for Namenode
+     file:
+            path: "/dn"
+            state: directory 
+   - name: Configuring hdfs-site.xml file
+     template:
+             src: "/root/task11/slave_hdfs-site.xml"
+             dest: "/etc/hadoop/hdfs-site.xml"
+   - name: Configuring hdfs-site.xml file
+     template:
+             src: "/root/task11/slave_core-site.xml"
+             dest: "/etc/hadoop/core-site.xml"
+   - name: Disabling firewalld
+     firewalld:
+             state: disabled
+             immediate: yes
+   - name: Starting daemon services
+     shell:
+             cmd: "hadoop-daemon.sh start datanode"
+   - name: Service Status
+     shell:
+             cmd: "jps"
+     register: j
+   - debug: 
+            var: j.stdout_lines
+
+

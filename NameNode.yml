@@ -1,0 +1,46 @@
+---
+ - hosts: nn
+   tasks:
+   - name: Copy Hadoop software into Namenode
+     copy:
+             src: "/root/hadoop-1.2.1-1.x86_64.rpm"
+             dest: "/root"
+   - name: Copy JDK software into Namenode
+     copy:
+             src: "/root/jdk-8u171-linux-x64.rpm"
+             dest: "/root"
+   - name: Installing Hadoop software into Namenode
+     shell:
+             cmd: "rpm -ivh hadoop-1.2.1-1.x86_64.rpm --force"
+   - name: Installing JDK software into Namenode
+     shell:
+             cmd: "rpm -ivh jdk-8u171-linux-x64.rpm --force"
+   - name: Craetinf folder for Namenode
+     file:
+            path: "/namenode"
+            state: directory 
+   - name: Configuring hdfs-site.xml file
+     template:
+             src: "/root/task11/master_hdfs-site.xml"
+             dest: "/etc/hadoop/hdfs-site.xml"
+   - name: Configuring hdfs-site.xml file
+     template:
+             src: "/root/task11/master_core-site.xml"
+             dest: "/etc/hadoop/core-site.xml"
+   - name: Formatting Namenode
+     shell:
+             cmd: "echo Y | hadoop namenode -format"
+   - name: Disabling firewalld
+     firewalld:
+             state: disabled
+   - name: Starting daemon services
+     shell:
+             cmd: "hadoop-daemon.sh start namenode"
+   - name: Service Status
+     shell:
+             cmd: "jps"
+     register: j
+   - debug: 
+            var: j.stdout_lines
+
+
